@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>扫码入场 - 智慧新空间</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #0a1628 0%, #1a3a5c 50%, #0d2137 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* 背景动画 */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .circle {
+            position: absolute;
+            border: 1px solid rgba(100, 200, 255, 0.1);
+            border-radius: 50%;
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        .circle:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .circle:nth-child(2) {
+            width: 400px;
+            height: 400px;
+            top: 50%;
+            right: 5%;
+            animation-delay: 1s;
+        }
+
+        .circle:nth-child(3) {
+            width: 250px;
+            height: 250px;
+            bottom: 10%;
+            left: 30%;
+            animation-delay: 2s;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.3; }
+            50% { transform: scale(1.1); opacity: 0.6; }
+        }
+
+        /* 星光 */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: radial-gradient(circle, #c0c0c0 0%, transparent 70%);
+            border-radius: 50%;
+            animation: twinkle 2s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* 主容器 */
+        .container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 50px;
+        }
+
+        .title {
+            font-size: 42px;
+            color: #fff;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px rgba(100, 200, 255, 0.5);
+            letter-spacing: 6px;
+        }
+
+        .subtitle {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 50px;
+            letter-spacing: 2px;
+        }
+
+        /* 二维码卡片 */
+        .qr-card {
+            background: linear-gradient(135deg, rgba(26, 58, 92, 0.9) 0%, rgba(13, 33, 55, 0.95) 100%);
+            border: 1px solid rgba(100, 200, 255, 0.3);
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow:
+                0 0 60px rgba(100, 200, 255, 0.2),
+                inset 0 0 60px rgba(100, 200, 255, 0.05);
+            display: inline-block;
+            position: relative;
+        }
+
+        /* 扫描动画 */
+        .scan-line {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            right: 50px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #64c8ff, transparent);
+            animation: scan 2s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes scan {
+            0%, 100% { top: 50px; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            50% { top: 250px; }
+        }
+
+        #qrcode {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .qr-hint {
+            margin-top: 30px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 18px;
+            letter-spacing: 2px;
+        }
+
+        .qr-hint span {
+            color: #64c8ff;
+            font-weight: bold;
+        }
+
+        /* 装饰角 */
+        .corner {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 2px solid rgba(100, 200, 255, 0.5);
+        }
+
+        .corner-tl { top: 15px; left: 15px; border-right: none; border-bottom: none; }
+        .corner-tr { top: 15px; right: 15px; border-left: none; border-bottom: none; }
+        .corner-bl { bottom: 15px; left: 15px; border-right: none; border-top: none; }
+        .corner-br { bottom: 15px; right: 15px; border-left: none; border-top: none; }
+
+        /* 底部提示 */
+        .footer-hint {
+            margin-top: 40px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+        }
+
+        /* 打印按钮 */
+        .btn-print {
+            margin-top: 30px;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, rgba(100, 200, 255, 0.3), rgba(74, 144, 217, 0.3));
+            border: 1px solid rgba(100, 200, 255, 0.5);
+            border-radius: 25px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 2px;
+        }
+
+        .btn-print:hover {
+            background: linear-gradient(135deg, rgba(100, 200, 255, 0.4), rgba(74, 144, 217, 0.4));
+            box-shadow: 0 0 30px rgba(100, 200, 255, 0.4);
+        }
+
+        /* 打印时隐藏按钮 */
+        @media print {
+            .btn-print, .footer-hint { display: none; }
+            body { background: #fff; }
+            .qr-card { box-shadow: none; border: 1px solid #ccc; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景动画 -->
+    <div class="bg-animation">
+        <div class="circle"></div>
+        <div class="circle"></div>
+        <div class="circle"></div>
+    </div>
+
+    <!-- 星光 -->
+    <div class="stars" id="stars"></div>
+
+    <!-- 主内容 -->
+    <div class="container">
+        <h1 class="title">智慧新空间</h1>
+        <p class="subtitle">开启AI赋能的办公新体验</p>
+
+        <div class="qr-card">
+            <div class="corner corner-tl"></div>
+            <div class="corner corner-tr"></div>
+            <div class="corner corner-bl"></div>
+            <div class="corner corner-br"></div>
+
+            <div class="scan-line"></div>
+            <div id="qrcode"></div>
+
+            <p class="qr-hint">请使用微信或浏览器 <span>扫码入场</span></p>
+        </div>
+
+        <p class="footer-hint">扫码签到，大屏幕同步显示欢迎标语</p>
+
+        <button class="btn-print" onclick="window.print()">打印二维码</button>
+    </div>
+
+    <script>
+        // 生成星光
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 30; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // 生成二维码 - 扫码后触发大屏幕切换
+        function generateQR() {
+            // 扫码后跳转到签到成功页，同时触发大屏幕切换
+            const checkinUrl = './event-checkin.html';
+
+            new QRCode(document.getElementById("qrcode"), {
+                text: checkinUrl,
+                width: 180,
+                height: 180,
+                colorDark: "#0a1628",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.M
+            });
+        }
+
+        // 初始化
+        createStars();
+        generateQR();
+    </script>
+</body>
+</html>

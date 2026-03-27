@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>签到成功 - 智慧新空间</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #0a1628 0%, #1a3a5c 50%, #0d2137 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* 背景装饰 */
+        .bg-decoration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .glow {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+        }
+
+        .glow-1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #64c8ff, transparent);
+            top: -100px;
+            right: -100px;
+        }
+
+        .glow-2 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, #4a90d9, transparent);
+            bottom: -50px;
+            left: -50px;
+        }
+
+        /* 星光 */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: radial-gradient(circle, #c0c0c0 0%, #e8e8e8 50%, transparent 70%);
+            border-radius: 50%;
+            animation: twinkle 2s ease-in-out infinite;
+            box-shadow: 0 0 8px rgba(192, 192, 192, 0.6);
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* 主容器 */
+        .container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+        }
+
+        /* 成功图标 */
+        .success-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+            background: linear-gradient(135deg, #52c41a, #389e0d);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 50px rgba(82, 196, 26, 0.5);
+            animation: iconPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 50px rgba(82, 196, 26, 0.5); }
+            50% { transform: scale(1.05); box-shadow: 0 0 70px rgba(82, 196, 26, 0.7); }
+        }
+
+        .success-icon svg {
+            width: 60px;
+            height: 60px;
+            fill: #fff;
+        }
+
+        /* 签到成功文字 */
+        .checkin-text {
+            font-size: 42px;
+            color: #52c41a;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(82, 196, 26, 0.5);
+            letter-spacing: 6px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .welcome-text {
+            font-size: 32px;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(100, 200, 255, 0.5);
+            letter-spacing: 4px;
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 提示文字 */
+        .hint {
+            margin-top: 50px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 16px;
+            letter-spacing: 2px;
+            animation: fadeInUp 0.6s ease-out 0.4s both;
+        }
+
+        .hint span {
+            color: #64c8ff;
+        }
+
+        /* 粒子效果 */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, #c0c0c0, transparent);
+            border-radius: 50%;
+            animation: float 10s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% {
+                transform: translateY(-100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* 烟花效果 */
+        .fireworks {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景装饰 -->
+    <div class="bg-decoration">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+    </div>
+
+    <!-- 星光 -->
+    <div class="stars" id="stars"></div>
+
+    <!-- 粒子效果 -->
+    <div class="particles" id="particles"></div>
+
+    <!-- 烟花效果 -->
+    <canvas class="fireworks" id="fireworks"></canvas>
+
+    <!-- 主内容 -->
+    <div class="container">
+        <div class="success-icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            </svg>
+        </div>
+
+        <p class="checkin-text">✓ 已签到</p>
+        <p class="welcome-text">欢迎进入智慧空间</p>
+
+        <p class="hint">请留意大屏幕，您的专属标语正在显示</p>
+    </div>
+
+    <script>
+        // 生成随机星光
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const starCount = 40;
+
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                star.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+
+                const size = 2 + Math.random() * 3;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // 生成粒子
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 15;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 10 + 's';
+                particle.style.animationDuration = (8 + Math.random() * 6) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // 触发大屏幕切换标语
+        function triggerDisplay() {
+            // 通知大屏幕有新用户签到
+            localStorage.setItem('newCheckin', Date.now().toString());
+            console.log('已通知大屏幕切换标语');
+        }
+
+        // 烟花效果
+        function initFireworks() {
+            const canvas = document.getElementById('fireworks');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = [];
+            const colors = ['#64c8ff', '#52c41a', '#c0c0c0', '#ffd700', '#ff6b6b'];
+
+            function createFirework(x, y) {
+                const particleCount = 30;
+                for (let i = 0; i < particleCount; i++) {
+                    particles.push({
+                        x: x,
+                        y: y,
+                        vx: (Math.random() - 0.5) * 10,
+                        vy: (Math.random() - 0.5) * 10,
+                        life: 1,
+                        color: colors[Math.floor(Math.random() * colors.length)]
+                    });
+                }
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const p = particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.1;
+                    p.life -= 0.02;
+
+                    ctx.globalAlpha = p.life;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    if (p.life <= 0) {
+                        particles.splice(i, 1);
+                    }
+                }
+
+                requestAnimationFrame(animate);
+            }
+
+            // 自动放烟花
+            setInterval(() => {
+                createFirework(
+                    Math.random() * canvas.width,
+                    Math.random() * canvas.height * 0.5
+                );
+            }, 800);
+
+            animate();
+        }
+
+        // 初始化
+        createStars();
+        createParticles();
+        triggerDisplay();
+        initFireworks();
+    </script>
+</body>
+</html>
