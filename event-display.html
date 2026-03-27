@@ -202,6 +202,28 @@
             font-size: 18px;
             letter-spacing: 2px;
         }
+
+        /* 签到提示 */
+        .checkin-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, rgba(82, 196, 26, 0.9), rgba(56, 158, 13, 0.9));
+            color: #fff;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 18px;
+            box-shadow: 0 0 30px rgba(82, 196, 26, 0.5);
+            opacity: 0;
+            transform: translateX(100px);
+            transition: all 0.5s ease;
+            z-index: 100;
+        }
+
+        .checkin-notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
     </style>
 </head>
 <body>
@@ -222,6 +244,11 @@
 
     <!-- 星光效果 -->
     <div class="stars" id="stars"></div>
+
+    <!-- 签到提示 -->
+    <div class="checkin-notification" id="notification">
+        ✓ 有新用户签到
+    </div>
 
     <!-- 主内容 -->
     <div class="container">
@@ -247,6 +274,8 @@
             "AI创新、技术破局、算力加持、智控风险",
             "领航前行、核心贡献、聚力启新、跃迁未来"
         ];
+
+        let lastCheckinTime = 0;
 
         // 生成随机星光
         function createStars() {
@@ -280,33 +309,46 @@
                 sloganElement.textContent = slogans[randomIndex];
                 sloganElement.style.animation = 'fadeInUp 0.8s ease-out';
             }, 100);
+
+            // 显示签到提示
+            showNotification();
         }
 
-        // 检查 URL 参数，如果有人扫码签到
-        function checkCheckin() {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('checkin') === '1') {
-                showRandomSlogan();
-                // 清除参数
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
+        // 显示签到提示
+        function showNotification() {
+            const notification = document.getElementById('notification');
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
         }
 
-        // 监听其他页面通过 BroadcastChannel 发送的消息
+        // 监听 localStorage 变化（其他页面签到时触发）
         function listenForCheckin() {
-            if ('BroadcastChannel' in window) {
-                const channel = new BroadcastChannel('checkin_channel');
-                channel.onmessage = function(e) {
-                    if (e.data === 'checkin') {
+            // 监听 storage 事件（其他页面修改 localStorage 时触发）
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'newCheckin') {
+                    const checkinTime = parseInt(e.newValue);
+                    // 只处理 5 秒内的签到
+                    if (checkinTime > lastCheckinTime) {
+                        lastCheckinTime = checkinTime;
                         showRandomSlogan();
                     }
-                };
-            }
+                }
+            });
+
+            // 轮询检查（兼容部分浏览器）
+            setInterval(() => {
+                const checkinTime = parseInt(localStorage.getItem('newCheckin') || '0');
+                if (checkinTime > lastCheckinTime) {
+                    lastCheckinTime = checkinTime;
+                    showRandomSlogan();
+                }
+            }, 1000);
         }
 
         // 初始化
         createStars();
-        checkCheckin();
         listenForCheckin();
 
         // 点击切换标语（测试用）

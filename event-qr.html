@@ -262,10 +262,10 @@
             }
         }
 
-        // 生成二维码 - 扫码后触发大屏幕切换
+        // 生成二维码 - 使用完整URL
         function generateQR() {
-            // 扫码后跳转到签到成功页，同时触发大屏幕切换
-            const checkinUrl = './event-checkin.html';
+            // 使用你的GitHub Pages完整链接
+            const checkinUrl = 'https://vickywang7946-ai.github.io/smart-space-event/event-checkin.html';
 
             new QRCode(document.getElementById("qrcode"), {
                 text: checkinUrl,
