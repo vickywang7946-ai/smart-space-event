@@ -268,10 +268,17 @@
             }
         }
 
-        // 触发大屏幕切换标语
+        // 触发大屏幕切换标语 - 多重保障
         function triggerDisplay() {
-            // 通知大屏幕有新用户签到
+            // 方案1: localStorage
             localStorage.setItem('newCheckin', Date.now().toString());
+
+            // 方案2: BroadcastChannel（更可靠）
+            if ('BroadcastChannel' in window) {
+                const bc = new BroadcastChannel('smart-space-checkin');
+                bc.postMessage('checkin');
+            }
+
             console.log('已通知大屏幕切换标语');
         }
 

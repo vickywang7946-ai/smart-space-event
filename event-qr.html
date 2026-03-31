@@ -207,9 +207,28 @@
             box-shadow: 0 0 30px rgba(100, 200, 255, 0.4);
         }
 
+        /* 手动切换按钮 */
+        .btn-trigger {
+            margin-top: 15px;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, rgba(82, 196, 26, 0.3), rgba(56, 158, 13, 0.3));
+            border: 1px solid rgba(82, 196, 26, 0.5);
+            border-radius: 25px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 2px;
+        }
+
+        .btn-trigger:hover {
+            background: linear-gradient(135deg, rgba(82, 196, 26, 0.4), rgba(56, 158, 13, 0.4));
+            box-shadow: 0 0 30px rgba(82, 196, 26, 0.4);
+        }
+
         /* 打印时隐藏按钮 */
         @media print {
-            .btn-print, .footer-hint { display: none; }
+            .btn-print, .btn-trigger, .footer-hint { display: none; }
             body { background: #fff; }
             .qr-card { box-shadow: none; border: 1px solid #ccc; }
         }
@@ -246,6 +265,8 @@
         <p class="footer-hint">扫码签到，大屏幕同步显示欢迎标语</p>
 
         <button class="btn-print" onclick="window.print()">打印二维码</button>
+        <br>
+        <button class="btn-trigger" onclick="manualTrigger()">手动切换大屏幕标语</button>
     </div>
 
     <script>
@@ -275,6 +296,20 @@
                 colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.M
             });
+        }
+
+        // 手动触发大屏幕切换
+        function manualTrigger() {
+            // 方案1: localStorage
+            localStorage.setItem('newCheckin', Date.now().toString());
+
+            // 方案2: BroadcastChannel
+            if ('BroadcastChannel' in window) {
+                const bc = new BroadcastChannel('smart-space-checkin');
+                bc.postMessage('checkin');
+            }
+
+            alert('已通知大屏幕切换标语');
         }
 
         // 初始化

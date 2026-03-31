@@ -298,15 +298,20 @@
             }
         }
 
-        // 显示随机标语
+        // 显示随机标语（确保与当前不同）
         function showRandomSlogan() {
             const sloganElement = document.getElementById('slogan');
-            const randomIndex = Math.floor(Math.random() * slogans.length);
+            const currentSlogan = sloganElement.textContent;
+
+            // 过滤掉当前标语，确保选择不同的
+            const availableSlogans = slogans.filter(s => s !== currentSlogan);
+            const randomIndex = Math.floor(Math.random() * availableSlogans.length);
+            const newSlogan = availableSlogans[randomIndex];
 
             // 淡出
             sloganElement.style.animation = 'none';
             setTimeout(() => {
-                sloganElement.textContent = slogans[randomIndex];
+                sloganElement.textContent = newSlogan;
                 sloganElement.style.animation = 'fadeInUp 0.8s ease-out';
             }, 100);
 
@@ -323,13 +328,12 @@
             }, 3000);
         }
 
-        // 监听 localStorage 变化（其他页面签到时触发）
+        // 监听签到事件 - 多重保障
         function listenForCheckin() {
-            // 监听 storage 事件（其他页面修改 localStorage 时触发）
+            // 方案1: 监听 storage 事件
             window.addEventListener('storage', function(e) {
                 if (e.key === 'newCheckin') {
-                    const checkinTime = parseInt(e.newValue);
-                    // 只处理 5 秒内的签到
+                    const checkinTime = parseInt(e.newValue || '0');
                     if (checkinTime > lastCheckinTime) {
                         lastCheckinTime = checkinTime;
                         showRandomSlogan();
@@ -337,14 +341,24 @@
                 }
             });
 
-            // 轮询检查（兼容部分浏览器）
+            // 方案2: BroadcastChannel（更可靠）
+            if ('BroadcastChannel' in window) {
+                const bc = new BroadcastChannel('smart-space-checkin');
+                bc.onmessage = function(e) {
+                    if (e.data === 'checkin') {
+                        showRandomSlogan();
+                    }
+                };
+            }
+
+            // 方案3: 高频轮询检查（每200毫秒）
             setInterval(() => {
                 const checkinTime = parseInt(localStorage.getItem('newCheckin') || '0');
                 if (checkinTime > lastCheckinTime) {
                     lastCheckinTime = checkinTime;
                     showRandomSlogan();
                 }
-            }, 1000);
+            }, 200);
         }
 
         // 初始化
