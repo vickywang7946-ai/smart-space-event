@@ -224,6 +224,74 @@
             opacity: 1;
             transform: translateX(0);
         }
+
+        /* 签到记录面板 */
+        .checkin-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, rgba(26, 58, 92, 0.95), rgba(13, 33, 55, 0.95));
+            border: 1px solid rgba(100, 200, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            min-width: 280px;
+            max-height: 300px;
+            overflow-y: auto;
+            box-shadow: 0 0 30px rgba(100, 200, 255, 0.2);
+            z-index: 50;
+        }
+
+        .checkin-panel h3 {
+            color: #64c8ff;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(100, 200, 255, 0.2);
+        }
+
+        .checkin-count {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .checkin-count span {
+            color: #52c41a;
+            font-size: 32px;
+        }
+
+        .checkin-list {
+            list-style: none;
+        }
+
+        .checkin-item {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(100, 200, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .checkin-item:last-child {
+            border-bottom: none;
+        }
+
+        .checkin-item .time {
+            color: rgba(100, 200, 255, 0.8);
+            font-size: 12px;
+        }
+
+        .checkin-item .badge {
+            background: linear-gradient(135deg, #52c41a, #389e0d);
+            color: #fff;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -248,6 +316,15 @@
     <!-- 签到提示 -->
     <div class="checkin-notification" id="notification">
         ✓ 有新用户签到
+    </div>
+
+    <!-- 签到记录面板 -->
+    <div class="checkin-panel" id="checkinPanel">
+        <h3>签到记录</h3>
+        <div class="checkin-count">已签到: <span id="checkinCount">0</span> 人</div>
+        <ul class="checkin-list" id="checkinList">
+            <li class="checkin-item" style="color: rgba(255,255,255,0.4);">暂无签到记录</li>
+        </ul>
     </div>
 
     <!-- 主内容 -->
@@ -276,6 +353,8 @@
         ];
 
         let lastCheckinTime = 0;
+        let checkinCount = 0;
+        let checkinRecords = [];
 
         // 生成随机星光
         function createStars() {
@@ -299,7 +378,7 @@
         }
 
         // 显示随机标语（确保与当前不同）
-        function showRandomSlogan() {
+        function showRandomSlogan(userName) {
             const sloganElement = document.getElementById('slogan');
             const currentSlogan = sloganElement.textContent;
 
@@ -311,17 +390,67 @@
             // 淡出
             sloganElement.style.animation = 'none';
             setTimeout(() => {
-                sloganElement.textContent = newSlogan;
+                if (userName) {
+                    sloganElement.innerHTML = `<span style="color:#64c8ff">${userName}</span>，${newSlogan}`;
+                } else {
+                    sloganElement.textContent = newSlogan;
+                }
                 sloganElement.style.animation = 'fadeInUp 0.8s ease-out';
             }, 100);
 
             // 显示签到提示
-            showNotification();
+            showNotification(userName);
+
+            // 添加签到记录
+            addCheckinRecord(userName);
+        }
+
+        // 添加签到记录
+        function addCheckinRecord(userName) {
+            checkinCount++;
+            const now = new Date();
+            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+
+            const record = {
+                name: userName || `访客${checkinCount}`,
+                time: timeStr,
+                id: Date.now()
+            };
+
+            checkinRecords.unshift(record);
+            if (checkinRecords.length > 10) {
+                checkinRecords.pop();
+            }
+
+            updateCheckinPanel();
+        }
+
+        // 更新签到面板
+        function updateCheckinPanel() {
+            document.getElementById('checkinCount').textContent = checkinCount;
+
+            const listElement = document.getElementById('checkinList');
+            if (checkinRecords.length === 0) {
+                listElement.innerHTML = '<li class="checkin-item" style="color: rgba(255,255,255,0.4);">暂无签到记录</li>';
+                return;
+            }
+
+            listElement.innerHTML = checkinRecords.map((record, index) => `
+                <li class="checkin-item">
+                    <span>${record.name} <span class="badge">已签到</span></span>
+                    <span class="time">${record.time}</span>
+                </li>
+            `).join('');
         }
 
         // 显示签到提示
-        function showNotification() {
+        function showNotification(userName) {
             const notification = document.getElementById('notification');
+            if (userName) {
+                notification.textContent = `✓ ${userName} 已签到`;
+            } else {
+                notification.textContent = '✓ 有新用户签到';
+            }
             notification.classList.add('show');
             setTimeout(() => {
                 notification.classList.remove('show');
@@ -347,6 +476,12 @@
                 bc.onmessage = function(e) {
                     if (e.data === 'checkin') {
                         showRandomSlogan();
+                    } else if (e.data && e.data.type === 'checkin') {
+                        const userName = e.data.userName;
+                        if (userName) {
+                            localStorage.setItem('checkinUserName', userName);
+                        }
+                        showRandomSlogan(userName || null);
                     }
                 };
             }
@@ -356,7 +491,8 @@
                 const checkinTime = parseInt(localStorage.getItem('newCheckin') || '0');
                 if (checkinTime > lastCheckinTime) {
                     lastCheckinTime = checkinTime;
-                    showRandomSlogan();
+                    const userName = localStorage.getItem('checkinUserName');
+                    showRandomSlogan(userName || null);
                 }
             }, 200);
         }
@@ -365,8 +501,11 @@
         createStars();
         listenForCheckin();
 
-        // 点击切换标语（测试用）
-        document.querySelector('.slogan-card').addEventListener('click', showRandomSlogan);
+        // 点击切换标语并记录签到
+        document.querySelector('.slogan-card').addEventListener('click', function() {
+            const userName = prompt('请输入签到人姓名（或留空）:', '');
+            showRandomSlogan(userName || null);
+        });
     </script>
 </body>
 </html>
